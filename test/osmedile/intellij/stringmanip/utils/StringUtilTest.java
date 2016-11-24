@@ -78,4 +78,40 @@ public class StringUtilTest extends TestCase {
         assertEquals("_TEST_AGAIN", StringUtil.wordsToConstantCase("_  test agaIN"));
         assertEquals("_TEST_AGAIN", StringUtil.wordsToConstantCase("   _  test agaIN"));
     }
+
+
+    public void testWordsToHyphenCase() {
+        assertEquals("this-is-a-text", StringUtil.wordsToHyphenCase("THIS IS A TEXT"));
+        assertEquals("whoah-a-test", StringUtil.wordsToHyphenCase("Whoah A Test"));
+        assertEquals("whoah-a-test", StringUtil.wordsToHyphenCase("Whoah    a tESt"));
+    }
+
+    public void testToDotCase() {
+        assertEquals("this.is.a.text", StringUtil.toDotCase("THIS IS A TEXT"));
+        assertEquals("whoah.a.test", StringUtil.toDotCase("Whoah A   Test"));
+        assertEquals("whoah.a...test", StringUtil.toDotCase("Whoah A - _ Test"));
+        assertEquals("whoah.a.t.est", StringUtil.toDotCase("Whoah    a tESt"));
+    }
+
+    public void testWordsToUnderscoreStringInJava() {
+        assertEquals("THIS_IS_A_TEXT", StringUtil.wordsToUnderscoreCase("THIS IS A TEXT"));
+        assertEquals("THISISATEXT", StringUtil.wordsToUnderscoreCase("THIS--IS-A-TEXT"));
+        assertEquals("THIS_IS_A_TEXT", StringUtil.wordsToUnderscoreCase("THIS   IS A   TEXT"));
+        assertEquals("A_B_", StringUtil.wordsToUnderscoreCase("A_B "));
+        assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A_B"));
+        assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A  B"));
+        assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A__B"));
+        assertEquals("ThisIsAText", StringUtil.wordsToUnderscoreCase("ThisIsAText"));
+        assertEquals("This_Is_A_Text", StringUtil.wordsToUnderscoreCase("This_Is_A__Text"));
+        assertEquals("Whoah_A_Test", StringUtil.wordsToUnderscoreCase("Whoah A Test"));
+        assertEquals("Whoah_a_tESt", StringUtil.wordsToUnderscoreCase("Whoah    a tESt"));
+        assertEquals("singleLine_clientA는_removeFormat하고_clientB는_EndOffset에_table_삽입하는_경우", StringUtil.wordsToUnderscoreCase("singleLine - clientA는 removeFormat하고, clientB는 EndOffset에 table 삽입하는 경우"));
+        assertEquals("multiLine_clientA는_removeFormat_newLine_하고_clientB는_EndOffset에_table_삽입하는_경우", StringUtil.wordsToUnderscoreCase("multiLine - clientA는 removeFormat(newLine)하고, clientB는 EndOffset에 table 삽입하는 경우"));
+
+        //todo: need to change the logic later
+//        assertEquals("Bug_126481_same_offset_clientA는_텍스트_삽입__w_fontColor_clientB는_텍스트_삽입__w_underline_하는_경우", StringUtil.wordsToUnderscoreCase("Bug 126481: same offset - clientA는 텍스트 삽입 (w/ fontColor), clientB는 텍스트 삽입 (w/ underline)하는 경우"));
+//        assertEquals("insert_table_2P_clientA는_삽입_clientB는_삽입_same_offset에서_하는_경우", StringUtil.wordsToUnderscoreCase("insert, table 2P : clientA는 삽입, clientB는 삽입 same offset에서 하는 경우"));
+//        assertEquals("Case_1_soft_break가_remote로_먼저_들어오는_경우", StringUtil.wordsToUnderscoreCase("Case 1:soft_break가 remote로 먼저 들어오는 경우"));
+//        assertEquals("겹치는_경우_clientA는_전체_multi_선택_1_3줄_후_styleOp하고_clientB는_2행에_tableOp하는_경우__Case_1_fontStyle의_userIndex가_낮은_경우", StringUtil.wordsToUnderscoreCase("겹치는 경우 - clientA는 전체 multi 선택(1~3줄)후 styleOp하고 clientB는 2행에 tableOp하는 경우 (Case 1: fontStyle의 userIndex가 낮은 경우)"));
+    }
 }

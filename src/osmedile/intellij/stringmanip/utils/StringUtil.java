@@ -318,4 +318,43 @@ public class StringUtil {
         }
         return false;
     }
+
+    public static String wordsToUnderscoreCase(String s) {
+        StringBuilder buf = new StringBuilder();
+
+        char lastChar = 'a';
+        int i = 0;
+        for (char c : s.toCharArray()) {
+            if (isWhitespace(lastChar) && (!isWhitespace(c) && '_' != c) //중복된 '  '를 제거하겠다.
+                    && buf.length() > 0
+                    && buf.charAt(buf.length() - 1) != '_') {
+                buf.append("_");
+            } else if ('_' == lastChar && (!isWhitespace(c) && '_' != c) //중복된 '__'를 제거하겠다.
+                    && buf.length() > 0
+                    && buf.charAt(buf.length() - 1) != '_') {
+                buf.append("_");
+            }
+
+            if ('(' == c || ')' == c) {
+                buf.append("_");
+            }
+            if (!isWhitespace(c) /*&& isAlphabetic(c)*/
+                    && '-' != c //hyphen 제거함
+                    && '_' != c
+                    && ',' != c
+                    && ':' != c
+                    && '(' != c
+                    && ')' != c) {
+                buf.append(c);
+            }
+
+            //space인 경우 그냥 skip
+            lastChar = c;
+        }
+
+        if (isWhitespace(lastChar)) {
+            buf.append("_");
+        }
+        return buf.toString();
+    }
 }

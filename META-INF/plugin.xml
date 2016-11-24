@@ -181,6 +181,11 @@
                     text="Capitalize Fully"
                     description="Capitalize Fully">
             </action>
+            <action id="StringManipulation.RemoveNonAlphaAndToUnderscoreAction"
+                    class="osmedile.intellij.stringmanip.styles.ToUnderscoreAction"
+                    text="To underscore (remove nonalpha)"
+                    description="Remove Non-Alpha characters and replace all spaces with underscore ">
+            </action>
             <separator/>
 
             <group text="Increment/Decrement..."
