@@ -1,33 +1,36 @@
 package osmedile.intellij.stringmanip.swap;
 
-import java.util.List;
-
-import org.jetbrains.annotations.NotNull;
-
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.*;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.util.TextRange;
-
+import com.intellij.util.ObjectUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import osmedile.intellij.stringmanip.utils.IdeUtils;
 
-public class SwapActionExecutorSupport {
-	private SwapAction action;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class SwapActionExecutor {
+
+
 	protected Editor editor;
 	protected DataContext dataContext;
 	protected List<CaretState> caretsAndSelections;
+	protected String separator;
 	protected Document document;
 
-	public SwapActionExecutorSupport() {
+	public SwapActionExecutor() {
 	}
 
-	public SwapActionExecutorSupport(SwapAction action, Editor editor, DataContext dataContext) {
-		this.action = action;
+	public SwapActionExecutor(Editor editor, DataContext dataContext, @Nullable String separator) {
 		this.editor = editor;
 		this.dataContext = dataContext;
-		caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
-		IdeUtils.sort(caretsAndSelections);
 		document = editor.getDocument();
+		caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
+		this.separator = separator;
 	}
 
 	@NotNull
@@ -165,7 +168,6 @@ public class SwapActionExecutorSupport {
 	}
 
 	protected String chooseSeparator() {
-		String lastSeparator = action.lastSeparator;
 		StringBuilder sb = new StringBuilder();
 
 		for (CaretState caretsAndSelection : caretsAndSelections) {
@@ -176,34 +178,34 @@ public class SwapActionExecutorSupport {
 		}
 
 		String s = sb.toString();
-		if (lastSeparator.equals(",") && !s.contains(",")) {
+		if (!s.contains(separator)) {
 			if (s.contains(";")) {
-				lastSeparator = ";";
+				separator = ";";
 			} else if (s.contains("||")) {
-				lastSeparator = "||";
+				separator = "||";
 			} else if (s.contains("|")) {
-				lastSeparator = "|";
+				separator = "|";
 			} else if (s.contains("/")) {
-				lastSeparator = "/";
+				separator = "/";
 			} else if (s.contains("&&")) {
-				lastSeparator = "&&";
+				separator = "&&";
 			} else if (s.contains(".")) {
-				lastSeparator = ".";
+				separator = ".";
 			} else if (s.contains(" ")) {
-				lastSeparator = " ";
+				separator = " ";
 			}
 		}
 
-		String separator = Messages.showInputDialog("Separator", "Split by separator and swap",
-				Messages.getQuestionIcon(), lastSeparator, null);
-		if (separator != null) {
-			if (separator.equals("")) {
-				separator = " ";
+		String newSeparator = Messages.showInputDialog("Separator", "Split by separator and swap",
+				Messages.getQuestionIcon(), separator, null);
+		if (newSeparator != null) {
+			if (newSeparator.equals("")) {
+				newSeparator = " ";
 			}
-			action.lastSeparator = separator;
 		} else {
 			return null;
 		}
+		separator = newSeparator;
 		return separator;
 	}
 
@@ -250,4 +252,76 @@ public class SwapActionExecutorSupport {
 		return selections == 0;
 	}
 
+	public boolean isSwappingTokens() {
+		if (singleCaret() && (noSelection() || max2CharSelection())) {
+			return false;
+		} else if (singleCaret() && singleSelection()) {
+			return true;
+		}
+		return false;
+	}
+
+	public void execute() {
+		IdeUtils.sort(caretsAndSelections);
+		if (singleCaret() && (noSelection() || max2CharSelection())) {
+			swapCharacters();
+		} else if (singleCaret() && singleSelection()) {
+			swapTokens();
+		} else {// multiple carets || multiple selections
+			selectLines_for_caretsWithoutSelection();
+			rotateSelections();
+		}
+	}
+
+	public void swapCharacters() {
+		for (CaretState caretsAndSelection : caretsAndSelections) {
+			int selectionStart = startOffset(caretsAndSelection);
+			int selectionEnd = endOffset(caretsAndSelection);
+
+			final Document document = this.document;
+			final int textLength = document.getTextLength();
+			String selectedText;
+			if (selectionStart == selectionEnd) {
+				selectionStart = selectionStart - 1;
+				selectionEnd = selectionEnd + 1;
+				if (selectionStart < 0 || selectionEnd > textLength) {
+					return;
+				}
+				selectedText = document.getText(TextRange.create(selectionStart, selectionEnd));
+			} else {
+				selectedText = document.getText(TextRange.create(selectionStart, selectionEnd));
+			}
+			document.replaceString(selectionStart, selectionEnd, swapCharacters(selectedText));
+		}
+
+	}
+
+	private void swapTokens() {
+		ObjectUtils.assertNotNull(separator);
+		for (CaretState caretsAndSelection : caretsAndSelections) {
+			int start = toOffset(caretsAndSelection.getSelectionStart());
+			int end = toOffset(caretsAndSelection.getSelectionEnd());
+			String selectedText = document.getText(TextRange.create(start, end));
+			String result = swapTokens(separator, selectedText);
+			document.replaceString(start, end, result);
+		}
+
+	}
+
+	private void rotateSelections() {
+		List<String> selections = new ArrayList<String>();
+		for (CaretState caretsAndSelection : caretsAndSelections) {
+			String text = editor.getDocument().getText(getTextRange(caretsAndSelection));
+			selections.add(text);
+		}
+
+		Collections.rotate(selections, 1);
+
+		for (int i = selections.size() - 1; i >= 0; i--) {
+			String text = selections.get(i);
+			CaretState caretsAndSelection = caretsAndSelections.get(i);
+			TextRange textRange = getTextRange(caretsAndSelection);
+			editor.getDocument().replaceString(textRange.getStartOffset(), textRange.getEndOffset(), text);
+		}
+	}
 }

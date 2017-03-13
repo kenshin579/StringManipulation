@@ -1,148 +1,104 @@
 package osmedile.intellij.stringmanip.sort;
 
-import java.util.*;
-
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.editor.CaretState;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.actionSystem.EditorAction;
-import com.intellij.openapi.editor.actionSystem.EditorWriteActionHandler;
-import com.intellij.openapi.util.TextRange;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.Pair;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import osmedile.intellij.stringmanip.MultiCaretHandlerHandler;
+import osmedile.intellij.stringmanip.sort.support.SortLines;
+import osmedile.intellij.stringmanip.sort.support.SortSettings;
+import osmedile.intellij.stringmanip.sort.support.SortTypeDialog;
 
-import osmedile.intellij.stringmanip.utils.StringUtils;
+import javax.swing.*;
+import java.util.List;
 
-public abstract class SortAction extends EditorAction {
+public class SortAction extends EditorAction {
+	public static final String STORE_KEY = "StringManipulation.SortAction.SortSettings";
+	private String storeKey = STORE_KEY;
 
-	protected SortAction(Sort sort) {
-		this(true, sort);
+	public SortAction(String storeKey) {
+		this();
+		this.storeKey = storeKey;
 	}
 
-	protected SortAction(boolean setupHandler, final Sort sort) {
+	protected SortAction() {
+		this(true);
+	}
+
+	protected SortAction(boolean setupHandler) {
 		super(null);
-		if (setupHandler) {
-			this.setupHandler(new EditorWriteActionHandler(false) {
-
-				@Override
-				public void executeWriteAction(Editor editor, DataContext dataContext) {
-					List<CaretState> caretsAndSelections = editor.getCaretModel().getCaretsAndSelections();
-
-					if (caretsAndSelections.size() > 1) {
-						processMultiCaret(editor, caretsAndSelections);
-					} else if (caretsAndSelections.size() == 1) {
-						processSingleSelection(editor, caretsAndSelections);
-					}
-				}
-
-				private void processSingleSelection(Editor editor, List<CaretState> caretsAndSelections) {
-					CaretState caretsAndSelection = caretsAndSelections.get(0);
-					LogicalPosition selectionStart = caretsAndSelection.getSelectionStart();
-					LogicalPosition selectionEnd = caretsAndSelection.getSelectionEnd();
-					String text = editor.getDocument().getText(
-							new TextRange(editor.logicalPositionToOffset(selectionStart),
-									editor.logicalPositionToOffset(selectionEnd)));
-
-					String charSequence = sort.sortLines(text);
-
-					editor.getDocument().replaceString(editor.logicalPositionToOffset(selectionStart),
-							editor.logicalPositionToOffset(selectionEnd), charSequence);
-				}
-
-				private void processMultiCaret(Editor editor, List<CaretState> caretsAndSelections) {
-					List<String> lines = new ArrayList<String>();
-					for (CaretState caretsAndSelection : caretsAndSelections) {
-						LogicalPosition selectionStart = caretsAndSelection.getSelectionStart();
-						LogicalPosition selectionEnd = caretsAndSelection.getSelectionEnd();
-						String text = editor.getDocument().getText(
-								new TextRange(editor.logicalPositionToOffset(selectionStart),
-										editor.logicalPositionToOffset(selectionEnd)));
-						lines.add(text);
-					}
-
-					lines = sort.sortLines(lines);
-
-					for (int i = lines.size() - 1; i >= 0; i--) {
-						String line = lines.get(i);
-						CaretState caretsAndSelection = caretsAndSelections.get(i);
-						LogicalPosition selectionStart = caretsAndSelection.getSelectionStart();
-						LogicalPosition selectionEnd = caretsAndSelection.getSelectionEnd();
-						editor.getDocument().replaceString(editor.logicalPositionToOffset(selectionStart),
-								editor.logicalPositionToOffset(selectionEnd), line);
-					}
-				}
-			});
-		}
-	}
-
-	final static Comparator<String> COMPARATOR = new NaturalOrderComparator();
-	// final static Comparator alphanumComparator = Ordering.natural();
-
-	enum Sort {
-		CASE_SENSITIVE_A_Z(new Comparator<String>() {
+		this.setupHandler(new MultiCaretHandlerHandler<SortSettings>() {
+			@NotNull
 			@Override
-			public int compare(String o1, String o2) {
-				return SortAction.COMPARATOR.compare(o1, o2);
-			}
-		}),
-		CASE_SENSITIVE_Z_A(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return SortAction.COMPARATOR.compare(o2, o1);
-			}
-		}),
-		CASE_INSENSITIVE_A_Z(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return SortAction.COMPARATOR.compare(o1.toLowerCase(), o2.toLowerCase());
-			}
-		}),
-		CASE_INSENSITIVE_Z_A(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return SortAction.COMPARATOR.compare(o2.toLowerCase(), o1.toLowerCase());
-			}
-		}),
-		LINE_LENGTH_SHORT_LONG(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return o1.length() - o2.length();
-			}
-		}),
-		LINE_LENGTH_LONG_SHORT(new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return o2.length() - o1.length();
+			protected Pair beforeWriteAction(Editor editor, DataContext dataContext) {
+				SortSettings settings = getSortSettings(editor);
+				if (settings == null) return stopExecution();
 
+				return continueExecution(settings);
 			}
+
+			@Override
+			protected String processSingleSelection(String text, SortSettings settings) {
+				return new SortLines(text, settings).sort();
+			}
+
+			@Override
+			protected List<String> processMultiSelections(List<String> lines, SortSettings settings) {
+				return new SortLines(lines, settings).sortLines();
+			}
+
 		});
-
-		private Comparator<String> comparator;
-
-		Sort(Comparator<String> comparator) {
-			this.comparator = comparator;
-		}
-
-		public List<String> sortLines(List<String> text) {
-			Collections.sort(text, comparator);
-			return text;
-
-		}
-
-		public String sortLines(String text) {
-			String[] split = text.split("\n");
-
-			List<String> list = Arrays.asList(split);
-			sortLines(list);
-
-			String join = StringUtils.join(split, '\n');
-			if (text.endsWith("\n")) {
-				join = join + "\n";
-			}
-			return join;
-		}
-
-		public Comparator<String> getComparator() {
-			return comparator;
-		}
 	}
+
+	@SuppressWarnings("Duplicates")
+	@Nullable
+	protected SortSettings getSortSettings(final Editor editor) {
+		final SortTypeDialog dialog = new SortTypeDialog(getSortSettings(storeKey), true);
+		DialogWrapper dialogWrapper = new DialogWrapper(editor.getProject()) {
+			{
+				init();
+				setTitle("Sort Settings");
+			}
+
+			@Nullable
+			@Override
+			public JComponent getPreferredFocusedComponent() {
+				return dialog.insensitive;
+			}
+
+			@Nullable
+			@Override
+			protected String getDimensionServiceKey() {
+				return "StringManipulation.SortTypeDialog";
+			}
+
+			@Nullable
+			@Override
+			protected JComponent createCenterPanel() {
+				return dialog.contentPane;
+			}
+
+
+			@Override
+			protected void doOKAction() {
+				super.doOKAction();
+			}
+		};
+
+		boolean b = dialogWrapper.showAndGet();
+		if (!b) {
+			return null;
+		}
+		SortSettings settings = dialog.getSettings();
+		settings.store(storeKey);
+		return settings;
+	}
+
+	protected SortSettings getSortSettings(String storeKey) {
+		return SortSettings.readFromStore(storeKey);
+	}
+
 }
