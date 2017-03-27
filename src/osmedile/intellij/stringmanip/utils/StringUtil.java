@@ -335,11 +335,18 @@ public class StringUtil {
 		return cs.length();
 	}
 
+	/**
+	 * - 중복 제거
+	 * - 알파벳이 아닌 char는 삭제
+	 * - whitespace도 삭제
+	 *
+	 * @param s
+	 * @return
+	 */
 	public static String wordsToUnderscoreCase(String s) {
 		StringBuilder buf = new StringBuilder();
 
 		char lastChar = 'a';
-		int i = 0;
 		for (char c : s.toCharArray()) {
 			if (isWhitespace(lastChar) && (!isWhitespace(c) && '_' != c) //중복된 '  '를 제거하겠다.
 					&& buf.length() > 0
@@ -351,25 +358,17 @@ public class StringUtil {
 				buf.append("_");
 			}
 
-			if ('(' == c || ')' == c) {
+			if ('(' == c || ')' == c
+					|| ','== c) {
 				buf.append("_");
 			}
-			if (!isWhitespace(c) /*&& isAlphabetic(c)*/
-					&& '-' != c //hyphen 제거함
-					&& '_' != c
-					&& ',' != c
-					&& ':' != c
-					&& '(' != c
-					&& ')' != c) {
+			if (!isWhitespace(c) &&
+					(isAlphabetic(c) || isDigit(c))) {
 				buf.append(c);
 			}
 
 			//space인 경우 그냥 skip
 			lastChar = c;
-		}
-
-		if (isWhitespace(lastChar)) {
-			buf.append("_");
 		}
 		return buf.toString();
 	}

@@ -97,7 +97,7 @@ public class StringUtilTest extends TestCase {
         assertEquals("THIS_IS_A_TEXT", StringUtil.wordsToUnderscoreCase("THIS IS A TEXT"));
         assertEquals("THISISATEXT", StringUtil.wordsToUnderscoreCase("THIS--IS-A-TEXT"));
         assertEquals("THIS_IS_A_TEXT", StringUtil.wordsToUnderscoreCase("THIS   IS A   TEXT"));
-        assertEquals("A_B_", StringUtil.wordsToUnderscoreCase("A_B "));
+        assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A_B "));
         assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A_B"));
         assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A  B"));
         assertEquals("A_B", StringUtil.wordsToUnderscoreCase("A__B"));
@@ -109,9 +109,8 @@ public class StringUtilTest extends TestCase {
         assertEquals("multiLine_clientA는_removeFormat_newLine_하고_clientB는_EndOffset에_table_삽입하는_경우", StringUtil.wordsToUnderscoreCase("multiLine - clientA는 removeFormat(newLine)하고, clientB는 EndOffset에 table 삽입하는 경우"));
 
         //todo: need to change the logic later
-//        assertEquals("Bug_126481_same_offset_clientA는_텍스트_삽입__w_fontColor_clientB는_텍스트_삽입__w_underline_하는_경우", StringUtil.wordsToUnderscoreCase("Bug 126481: same offset - clientA는 텍스트 삽입 (w/ fontColor), clientB는 텍스트 삽입 (w/ underline)하는 경우"));
-//        assertEquals("insert_table_2P_clientA는_삽입_clientB는_삽입_same_offset에서_하는_경우", StringUtil.wordsToUnderscoreCase("insert, table 2P : clientA는 삽입, clientB는 삽입 same offset에서 하는 경우"));
-//        assertEquals("Case_1_soft_break가_remote로_먼저_들어오는_경우", StringUtil.wordsToUnderscoreCase("Case 1:soft_break가 remote로 먼저 들어오는 경우"));
-//        assertEquals("겹치는_경우_clientA는_전체_multi_선택_1_3줄_후_styleOp하고_clientB는_2행에_tableOp하는_경우__Case_1_fontStyle의_userIndex가_낮은_경우", StringUtil.wordsToUnderscoreCase("겹치는 경우 - clientA는 전체 multi 선택(1~3줄)후 styleOp하고 clientB는 2행에 tableOp하는 경우 (Case 1: fontStyle의 userIndex가 낮은 경우)"));
+        assertEquals("Bug_126481_same_offset_clientA는_텍스트_삽입__w_fontColor__clientB는_텍스트_삽입__w_underline_하는_경우", StringUtil.wordsToUnderscoreCase("Bug 126481: same offset - clientA는 텍스트 삽입 (w/ fontColor), clientB는 텍스트 삽입 (w/ underline)하는 경우"));
+        assertEquals("insert_table_2P_clientA는_삽입_clientB는_삽입_same_offset에서_하는_경우", StringUtil.wordsToUnderscoreCase("insert, table 2P : clientA는 삽입, clientB는 삽입 same offset에서 하는 경우"));
+        assertEquals("filter_갱신_fonStyle__same_offset_step3_997_1_TP1_cUpdate_filter_ty1_il0_a_c_f_2_3_4_2_2_7_2_sheet_0_cUpdate_color_FFFF00_2_2_7_4_sheet_0", StringUtil.wordsToUnderscoreCase("filter 갱신 / fonStyle (same offset) - step3 - 997_1 : TP1 cUpdate : filter : {'ty':1,'il':[['0',['a','c','f'],[2,3,4]]]} : [2, 2, 7, 2] : sheet 0/ cUpdate : color : '#FFFF00' : [2, 2, 7, 4] : sheet 0"));
     }
 }
