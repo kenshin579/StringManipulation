@@ -1,7 +1,7 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin url="https://github.com/krasa/StringManipulation">
     <name>String Manipulation</name>
-    <version>5.4.143.000.0</version>
+    <version>5.5.143.000.1</version>
     <vendor email="vojta.krasa@gmail.com">original author: Olivier Smedile, current maintainer: Vojtech Krasa</vendor>
     <idea-version since-build="143.000"/>
 
@@ -125,12 +125,22 @@
                 <action id="osmedile.intellij.stringmanip.URLEncodeAction"
                         class="osmedile.intellij.stringmanip.encoding.URLEncodeAction"
                         text="Encode URL"
-                        description="Encode URL">
+                        description="Encode URL (by java.net.URLEncoder)">
                 </action>
                 <action id="osmedile.intellij.stringmanip.URLDecodeAction"
                         class="osmedile.intellij.stringmanip.encoding.URLDecodeAction"
                         text="Decode URL"
-                        description="Decode URL">
+                        description="Decode URL (by java.net.URLDecoder)">
+                </action>
+                <action id="osmedile.intellij.stringmanip.encoding.URLEncodeRFC3986"
+                        class="osmedile.intellij.stringmanip.encoding.URLEncodeRFC3986Action"
+                        text="Encode URL (RFC 3986)"
+                        description="Encode URL (RFC 3986 - space character as %20 instead of +)">
+                </action>
+                <action id="osmedile.intellij.stringmanip.encoding.URLDecodeRFC3986"
+                        class="osmedile.intellij.stringmanip.encoding.URLDecodeRFC3986Action"
+                        text="Decode URL (RFC 3986)"
+                        description="Decode URL (RFC 3986 - space character as %20 instead of +)">
                 </action>
             </group>
 
@@ -138,8 +148,8 @@
 
             <action id="StringManipulation.SwitchStyleAction"
                     class="osmedile.intellij.stringmanip.styles.SwitchStyleAction"
-                    text="Toggle case"
-                    description="Toggle case (camelCase, hyphen-lowercase, HYPHEN-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case, words lowercase, Words Capitalized)">
+                    text="Switch case"
+                    description="Switch/Toggle case (camelCase, hyphen-lowercase, HYPHEN-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case, words lowercase, Words Capitalized)">
             </action>
             <action id="osmedile.intellij.stringmanip.WordsAndCamelToConstantStyleCaseAction"
                     class="osmedile.intellij.stringmanip.styles.ToConstantStyleCaseAction"
@@ -169,8 +179,13 @@
 
             <action id="osmedile.intellij.stringmanip.ToCamelCaseAction"
                     class="osmedile.intellij.stringmanip.styles.ToCamelCaseAction"
-                    text="To camelCase (or to words)"
-                    description="To camelCase (or to words)">
+                    text="To camelCase (Or To Words)"
+                    description="To camelCase (Or To Words)">
+            </action>
+            <action id="osmedile.intellij.stringmanip.styles.ToCamelCaseOrToWordLowercaseAction"
+                    class="osmedile.intellij.stringmanip.styles.ToCamelCaseOrToWordLowercaseAction"
+                    text="To camelCase (or to lowercase words)"
+                    description="To camelCase (or to lowercase words)">
             </action>
             <action id="StringManipulation.ToPascalCaseOrCamelCase"
                     class="osmedile.intellij.stringmanip.styles.ToPascalCaseAction"
@@ -183,10 +198,10 @@
                     text="Capitalize"
                     description="Capitalize">
             </action>
-            <action id="osmedile.intellij.stringmanip.WordsCapitalizeFullyAction"
-                    class="osmedile.intellij.stringmanip.styles.WordsCapitalizeFullyAction"
-                    text="Capitalize Fully"
-                    description="Capitalize Fully">
+            <action id="osmedile.intellij.stringmanip.SwapCaseAction"
+                    class="osmedile.intellij.stringmanip.styles.InvertCaseAction"
+                    text="Invert case"
+                    description="Invert Case -> iNVERT cASE">
             </action>
             <action id="StringManipulation.RemoveNonAlphaAndToUnderscoreAction"
                     class="osmedile.intellij.stringmanip.styles.ToUnderscoreAction"
@@ -268,6 +283,11 @@
                         class="osmedile.intellij.stringmanip.filter.RemoveDuplicateLinesAction"
                         text="Remove duplicate lines"
                         description="Remove duplicate lines in selected text or lines within multiple selections">
+                </action>
+                <action id="StringManipulation.KeepOnlyDuplicateLines"
+                        class="osmedile.intellij.stringmanip.filter.KeepOnlyDuplicateLinesAction"
+                        text="Keep only duplicate lines"
+                        description="Remove non-duplicate lines in selected text or lines within multiple selections">
                 </action>
                 <action id="osmedile.intellij.stringmanip.RemoveEmptyLinesAction"
                         class="osmedile.intellij.stringmanip.filter.RemoveEmptyLinesAction"
@@ -362,9 +382,11 @@
 				<li>To dot.case (or to camelCase)</li>
 				<li>To hyphen-case (or to camelCase)</li>
 				<li>To hyphen-case (or to snake_case)</li>
-				<li>To camelCase (or to words)</li>
+				<li>To camelCase (Or To Words)</li>
+				<li>To camelCase (or to lowercase words)</li>
 				<li>To PascalCase (or to camelCase)</li>
 				<li>Capitalize selected text</li>
+				<li>Invert case</li>
 			</ul>
             -when nothing is selected, then either nothing or whole line or a particular element is selected - report an issue if you find something to improve, each file type needs its own implementation to work flawlessly.</li>
 		</p>
@@ -429,6 +451,7 @@
 				<li>Trim all spaces in selected text</li>
 				<li>Remove all spaces in selected text</li>
 				<li>Remove duplicate lines</li>
+				<li>Keep only duplicate lines</li>
 				<li>Remove empty lines</li>
 				<li>Remove all newlines</li>
 			</ul>
@@ -451,6 +474,16 @@
     <change-notes>
         <![CDATA[
 	<p>
+	    <div>
+	        <h4>Version 5.5<h4>
+	        <ul>
+                <li>Removed action: Capitalize Fully</li>
+                <li>Added action: Keep only duplicates</li>
+                <li>Added action: Invert case</li>
+                <li>Added action: To camelCase (or to lowercase words)</li>
+                <li>Added action: Encode/Decode URL according to RFC 3986 (space character as %20 instead of +, using org.springframework.web.util.UriUtils 4.3.9.RELEASE) </li>
+			</ul>
+	    </div>
 	    <div>
 	        <h4>Version 5.4<h4>
 	        <ul>
