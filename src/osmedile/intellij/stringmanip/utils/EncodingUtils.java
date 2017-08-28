@@ -1,6 +1,7 @@
 package osmedile.intellij.stringmanip.utils;
 
-import shaded.org.springframework.web.util.UriUtils;
+
+import org.springframework.web.util.UriUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
