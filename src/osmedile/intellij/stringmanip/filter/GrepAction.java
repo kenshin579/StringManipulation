@@ -23,6 +23,19 @@ import java.util.Collection;
 public class GrepAction extends EditorAction {
 
 	public GrepAction() {
+		this(new GrepFilter() {
+			@Override
+			public boolean execute(String text, String grepos) {
+				return text.contains(grepos);
+			}
+		});
+	}
+
+	interface GrepFilter {
+		boolean execute(String text, String grepos);
+	}
+
+	public GrepAction(final GrepFilter shouldAdd) {
 		super(new MyEditorWriteActionHandler<String>() {
 			@NotNull
 			@Override
@@ -33,13 +46,15 @@ public class GrepAction extends EditorAction {
 					if (!StringUtil.isEmptyOrSpaces(grepos)) {
 						return continueExecution(grepos);
 					}
+				} else {
+					Messages.showInfoMessage(editor.getProject(), "Please select text, before using grep", "Grep");
 				}
 				return stopExecution();
 			}
 
 			@Override
 			protected void executeWriteAction(Editor editor, @Nullable Caret caret, DataContext dataContext, String grepos) {
-				//Column mode not supported
+				// Column mode not supported
 				if (editor.isColumnMode()) {
 					return;
 				}
@@ -52,25 +67,19 @@ public class GrepAction extends EditorAction {
 					}
 					final String selectedText = selectionModel.getSelectedText();
 
-
 					String[] textParts = selectedText.split("\n");
 					Collection<String> result = new ArrayList<String>();
 
 					for (String textPart : textParts) {
-						if (textPart.contains(grepos)) {
+						if (shouldAdd.execute(textPart, grepos)) {
 							result.add(textPart);
 						}
 					}
 
-
 					String[] res = result.toArray(new String[result.size()]);
 
 					final String s = StringUtils.join(res, '\n');
-					editor.getDocument().replaceString(selectionModel.getSelectionStart(),
-							selectionModel.getSelectionEnd(), s);
-				} else {
-					Messages.showInfoMessage(editor.getProject(), "Please select text, before using grep",
-							"Grep");
+					editor.getDocument().replaceString(selectionModel.getSelectionStart(), selectionModel.getSelectionEnd(), s);
 				}
 
 			}

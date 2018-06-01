@@ -8,18 +8,20 @@ Provides actions for text manipulation:
     <p>
         Switch case:
         <ul>
-            <li>Switch style (camelCase, hyphen-lowercase, HYPHEN-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case,
+            <li>Switch style (camelCase, kebab-lowercase, KEBAB-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case,
                 words lowercase, Words Capitalized, PascalCase)
             </li>
             <li>To SCREAMING_SNAKE_CASE (or to camelCase)</li>
             <li>To snake_case (or to camelCase)</li>
             <li>To dot.case (or to camelCase)</li>
-            <li>To hyphen-case (or to camelCase)</li>
-            <li>To hyphen-case (or to snake_case)</li>
+            <li>To kebab-case (or to camelCase)</li>
+            <li>To kebab-case (or to snake_case)</li>
             <li>To camelCase (or to words)</li>
             <li>To PascalCase (or to camelCase)</li>
             <li>Capitalize selected text</li>
-            <li>Swap case</li>
+            <li>To UPPER CASE</li>
+            <li>To lower case</li>
+            <li>Invert case</li>
         </ul>
         -when nothing is selected, then either nothing or whole line or a particular element is selected - report an issue if you find something to improve, each file type needs its own implementation to work flawlessly.</li>
     </p>
@@ -80,6 +82,7 @@ Provides actions for text manipulation:
             <li>Grep selected text, All lines not matching input text wil be removed.
                 (Does not work in column mode)
             </li>
+            <li>Inverted Grep</li>
             <li>Trim selected text</li>
             <li>Trim all spaces in selected text</li>
             <li>Remove all spaces in selected text</li>

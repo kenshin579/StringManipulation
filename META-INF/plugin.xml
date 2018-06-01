@@ -1,7 +1,7 @@
 <!DOCTYPE idea-plugin PUBLIC "Plugin/DTD" "http://plugins.intellij.net/plugin.dtd">
 <idea-plugin url="https://github.com/krasa/StringManipulation">
     <name>String Manipulation</name>
-    <version>5.7.143.000.0</version>
+    <version>5.9.143.000.1</version>
     <vendor email="vojta.krasa@gmail.com">original author: Olivier Smedile, current maintainer: Vojtech Krasa</vendor>
     <idea-version since-build="143.000"/>
 
@@ -19,7 +19,8 @@
         <action id="osmedile.intellij.stringmanip.PopupChoiceAction"
                 class="osmedile.intellij.stringmanip.PopupChoiceAction"
                 text="Popup String Manipulation ..."
-                description="Popup String Manipulation ...">
+                description="Popup String Manipulation ..."
+                icon="/osmedile/intellij/stringmanip/edit.png">
             <add-to-group group-id="EditMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt shift M"/>
             <keyboard-shortcut keymap="$default" first-keystroke="alt M"/>
@@ -27,7 +28,9 @@
 
         <group id="osmedile.ManipulateStringGroup" text="String Manipulation"
                description="Group of String manipulation"
-               popup="true">
+               popup="true"
+               icon="/osmedile/intellij/stringmanip/edit.png"
+        >
             <add-to-group group-id="EditMenu" anchor="last"/>
             <group text="Escape/Unescape..."
                    description="Group of String manipulation escape actions"
@@ -149,7 +152,7 @@
             <action id="StringManipulation.SwitchStyleAction"
                     class="osmedile.intellij.stringmanip.styles.SwitchStyleAction"
                     text="Switch case"
-                    description="Switch/Toggle case (camelCase, hyphen-lowercase, HYPHEN-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case, words lowercase, Words Capitalized)">
+                    description="Switch/Toggle case (camelCase, kebab-lowercase, KEBAB-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case, words lowercase, Words Capitalized)">
             </action>
             <action id="osmedile.intellij.stringmanip.WordsAndCamelToConstantStyleCaseAction"
                     class="osmedile.intellij.stringmanip.styles.ToConstantStyleCaseAction"
@@ -163,13 +166,13 @@
             </action>
             <action id="StringManipulation.ToHyphenCaseAction"
                     class="osmedile.intellij.stringmanip.styles.ToHyphenCaseAction"
-                    text="To hyphen-case (or to snake__case)"
-                    description="To hyphen-case (or to snake_case)">
+                    text="To kebab-case (or to snake__case)"
+                    description="To kebab-case (or to snake_case)">
             </action>
             <action id="StringManipulation.ToHyphenCaseOrCamelCase"
                     class="osmedile.intellij.stringmanip.styles.CamelCaseToHyphenLowerCaseAction"
-                    text="To hyphen-case (or to camelCase)"
-                    description="To hyphen-case (or to camelCase)">
+                    text="To kebab-case (or to camelCase)"
+                    description="To kebab-case (or to camelCase)">
             </action>
             <action id="StringManipulation.ToDotStyleAction"
                     class="osmedile.intellij.stringmanip.styles.ToDotStyleAction"
@@ -197,6 +200,16 @@
                     class="osmedile.intellij.stringmanip.styles.WordsCapitalizeAction"
                     text="Capitalize"
                     description="Capitalize">
+            </action>
+            <action id="osmedile.intellij.stringmanip.ToLowerCaseAction"
+                    class="osmedile.intellij.stringmanip.styles.ToLowerCaseAction"
+                    text="To lower case"
+                    description="To Lower Case">
+            </action>
+            <action id="osmedile.intellij.stringmanip.ToUpperCaseAction"
+                    class="osmedile.intellij.stringmanip.styles.ToUpperCaseAction"
+                    text="To UPPER CASE"
+                    description="To Upper Case">
             </action>
             <action id="osmedile.intellij.stringmanip.SwapCaseAction"
                     class="osmedile.intellij.stringmanip.styles.InvertCaseAction"
@@ -277,6 +290,11 @@
                         class="osmedile.intellij.stringmanip.filter.GrepAction"
                         text="Grep"
                         description="Grep on selected text">
+                </action>
+                <action id="osmedile.intellij.stringmanip.InvertedGrepAction"
+                        class="osmedile.intellij.stringmanip.filter.InvertedGrepAction"
+                        text="Inverted Grep"
+                        description="Inverted Grep on selected text">
                 </action>
                 <separator/>
                 <action id="StringManipulation.RemoveDuplicateLines"
@@ -360,7 +378,8 @@
 
         <group id="StringManipulation.EditorPopupMenu" text="String Manipulation"
                description="String Manipulation"
-               popup="false">
+               popup="false"
+               icon="/osmedile/intellij/stringmanip/edit.png">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="EditorToggleColumnMode"/>
 
             <separator/>
@@ -378,14 +397,16 @@
 		<p>
 			Provides actions for text manipulation:
 			<ul>
-				<li>Toggle style (camelCase, hyphen-lowercase, HYPHEN-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case,
+				<li>Toggle style (camelCase, kebab-lowercase, KEBAB-UPPERCASE, snake_case, SCREAMING_SNAKE_CASE, dot.case,
 					words lowercase, Words Capitalized, PascalCase)
 				</li>
+				<li>To UPPER CASE</li>
+				<li>To lower case</li>
 				<li>To SCREAMING_SNAKE_CASE (or to camelCase)</li>
 				<li>To snake_case (or to camelCase)</li>
 				<li>To dot.case (or to camelCase)</li>
-				<li>To hyphen-case (or to camelCase)</li>
-				<li>To hyphen-case (or to snake_case)</li>
+				<li>To kebab-case (or to camelCase)</li>
+				<li>To kebab-case (or to snake_case)</li>
 				<li>To camelCase (Or To Words)</li>
 				<li>To camelCase (or to lowercase words)</li>
 				<li>To PascalCase (or to camelCase)</li>
@@ -451,6 +472,7 @@
 				<li>Grep selected text, All lines not matching input text wil be removed.
 					(Does not work in column mode)
 				</li>
+				<li>Inverted Grep</li>
 				<li>Trim selected text</li>
 				<li>Trim all spaces in selected text</li>
 				<li>Remove all spaces in selected text</li>
@@ -478,6 +500,22 @@
     <change-notes>
         <![CDATA[
 	<p>
+	    <div>
+	        <h4>Version 5.9<h4>
+	        <ul>
+                <li>Menu icons</li>
+                <li>Renamed hyphen-case to kebab-case according to current standards</li>
+            </ul>
+	    </div>
+	    <div>
+	        <h4>Version 5.8<h4>
+	        <ul>
+                <li>Added 'Inverted Grep'</li>
+			    <li>Added 'To UPPER CASE'</li>
+				<li>Added 'To lower case'</li>	
+                <li>Fixed 'Switch Case' for "Foo"</li>
+            </ul>
+	    </div>
 	    <div>
 	        <h4>Version 5.7<h4>
 	        <ul>
